@@ -5,9 +5,11 @@ class CartsController < ApplicationController
   def create
     product = Product.find(params[:product_id])
     quantity = params[:quantity].to_i
+    
+
 
     cart_item = @cart.cart_items.find_or_initialize_by(product: product)
-    cart_item.quantity += quantity
+    cart_item.quantity = (cart_item.quantity || 0) + quantity
     cart_item.save!
 
     @cart.update_total_price!
@@ -47,9 +49,17 @@ class CartsController < ApplicationController
   private
 
   def set_cart
-    @cart = Cart.find_or_create_by(id: session[:cart_id])
-    session[:cart_id] ||= @cart.id
-  end
+    if session[:cart_id]
+      @cart = Cart.find_by(id: session[:cart_id])
+      unless @cart
+        @cart = Cart.create!(total_price: 0)
+        session[:cart_id] = @cart.id
+      end
+    else
+      @cart = Cart.create!(total_price: 0)
+      session[:cart_id] = @cart.id
+    end
+end
 
   def cart_payload(cart)
     {
