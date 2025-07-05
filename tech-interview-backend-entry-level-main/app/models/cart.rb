@@ -4,7 +4,7 @@ class Cart < ApplicationRecord
   has_many :products, through: :cart_items
   scope :abandonados, -> { where("updated_at < ?", 3.hours.ago) }
 
-  def update_total_price
+  def update_total_price!
     update!(total_price: cart_items.includes(:product).sum { |item| item.quantity * item.product.price })
   end
 end

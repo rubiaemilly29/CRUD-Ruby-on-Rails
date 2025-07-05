@@ -1,12 +1,12 @@
 class CartsController < ApplicationController
   before_action :set_cart
 
-  # POST /cart
+  # POST /cart - Requisito 1
+  # Cria um carrinho de compras vazio e salva no session[:cart_id]
+  # Se o carrinho não existir, cria um novo carrinho vazio
   def create
     product = Product.find(params[:product_id])
     quantity = params[:quantity].to_i
-    
-
 
     cart_item = @cart.cart_items.find_or_initialize_by(product: product)
     cart_item.quantity = (cart_item.quantity || 0) + quantity
@@ -16,12 +16,16 @@ class CartsController < ApplicationController
     render json: cart_payload(@cart)
   end
 
-  # GET /cart
+    # GET /cart - Requisito 2
+  # Retorna o carrinho de compras atual
+
   def show
     render json: cart_payload(@cart)
   end
 
-  # POST /cart/add_item
+    # POST /cart/add_item - Requisito 3
+  # Adiciona um item ao carrinho de compras
+
   def add_item
     product = Product.find(params[:product_id])
     quantity = params[:quantity].to_i
@@ -32,18 +36,6 @@ class CartsController < ApplicationController
 
     @cart.update_total_price!
     render json: cart_payload(@cart)
-  end
-
-  # DELETE /cart/:product_id
-  def remove_item
-    cart_item = @cart.cart_items.find_by(product_id: params[:product_id])
-    if cart_item
-      cart_item.destroy
-      @cart.update_total_price!
-      render json: cart_payload(@cart)
-    else
-      render json: { error: "Produto não está no carrinho" }, status: :not_found
-    end
   end
 
   private
@@ -59,7 +51,7 @@ class CartsController < ApplicationController
       @cart = Cart.create!(total_price: 0)
       session[:cart_id] = @cart.id
     end
-end
+  end
 
   def cart_payload(cart)
     {
