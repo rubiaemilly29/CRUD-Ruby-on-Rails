@@ -38,6 +38,21 @@ class CartsController < ApplicationController
     render json: cart_payload(@cart)
   end
 
+    # DELETE /cart/:product_id - Requisito 4
+  # Remove um item do carrinho de compras
+
+  def remove_item
+    product_id = params[:product_id] # agora pega do query param
+    cart_item = @cart.cart_items.find_by(product_id: product_id)
+    if cart_item
+      cart_item.destroy
+      @cart.update_total_price!
+      render json: cart_payload(@cart)
+    else
+      render json: { error: "Produto não está no carrinho" }, status: :not_found
+    end
+  end
+
   private
 
   def set_cart
