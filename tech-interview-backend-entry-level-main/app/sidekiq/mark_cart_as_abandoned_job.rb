@@ -11,4 +11,5 @@ class MarkCartAsAbandonedJob
     Cart.where("abandoned = ? AND updated_at < ?", true, 7.days.ago).find_each do |cart|
       cart.remove_if_abandoned!
     end
+  end
 end
