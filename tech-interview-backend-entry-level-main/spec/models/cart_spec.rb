@@ -26,6 +26,33 @@ RSpec.describe Cart, type: :model do
       expect { shopping_cart.remove_if_abandoned }.to change { Cart.count }.by(-1)
     end
   end
+
+  describe 'total_price' do
+    let(:cart) { create(:cart) }
+    let!(:item1) { create(:item, price: 10.0) }
+    let!(:item2) { create(:item, price: 20.0) }
+
+    before do
+      cart.items << item1
+      cart.items << item2
+    end
+
+    it 'calculates the total price of items in the cart' do
+      expect(cart.total_price).to eq(30.0)
+    end
+
+    it 'updates total_price when items are added or removed' do
+      item3 = create(:item, price: 15.0)
+      cart.items << item3
+      expect(cart.total_price).to eq(45.0)
+
+      cart.items.delete(item1)
+      expect(cart.total_price).to eq(35.0)
+    end
+  end
+
+  
+
 end
 
 
