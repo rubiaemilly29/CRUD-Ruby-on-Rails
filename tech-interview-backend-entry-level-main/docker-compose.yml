@@ -21,25 +21,27 @@ services:
         command: bundle exec rails server -b 0.0.0.0
         volumes:
         - .:/rails
+        - bundle_cache:/usr/local/bundle
         ports:
         - "3000:3000"
         depends_on:
         - db
         - redis
         environment:
-        - DATABASE_URL= postgresql://postgres:password@db:5432/store_development
-        - REDIS_URL= redis://redis:6379/0
+        - DATABASE_URL=postgresql://postgres:password@db:5432/store_development
+        - REDIS_URL=redis://redis:6379/0
     test:
         build: .
-        command: bundle exec rspec
+        command: bash -c "bin/rails db:create db:schema:load && bundle exec rspec"
         volumes:
-            - .:/rails
+        - .:/rails
+        - bundle_cache:/usr/local/bundle
         depends_on:
             - db
             - redis 
         environment:
-            - DATABASE_URL= postgresql://postgres:password@db:5432/myapp_test
-            - REDIS_URL= redis://redis:6379/0
+            - DATABASE_URL=postgresql://postgres:password@db:5432/myapp_test
+            - REDIS_URL=redis://redis:6379/0
 volumes:
     postgres13:
     redis_data:
