@@ -18,7 +18,7 @@ services:
         - redis_data:/data  
     web:
         build: .
-        command: bundle exec rails server -b 0.0.0.0
+        command: bash -c "rm -f /rails/tmp/pids/server.pid && sleep 10 && bundle exec rails db:drop && bundle exec rails db:create && bundle exec rails db:migrate && bundle exec rails db:seed && bundle exec rails server -b 0.0.0.0"
         volumes:
         - .:/rails
         ports:
@@ -27,19 +27,21 @@ services:
         - db
         - redis
         environment:
-        - DATABASE_URL= postgresql://postgres:password@db:5432/store_development
-        - REDIS_URL= redis://redis:6379/0
+        - DATABASE_URL=postgresql://postgres:password@db:5432/store_development
+        - REDIS_URL=redis://redis:6379/0
     test:
         build: .
-        command: bundle exec rspec
+        command: bash -c "bundle exec rails db:create RAILS_ENV=test && bundle exec rails db:migrate RAILS_ENV=test && bundle exec rspec && tail -f /dev/null"
         volumes:
-            - .:/rails
+        - .:/rails
         depends_on:
             - db
             - redis 
         environment:
-            - DATABASE_URL= postgresql://postgres:password@db:5432/myapp_test
-            - REDIS_URL= redis://redis:6379/0
+            - DATABASE_URL=postgresql://postgres:password@db:5432/store_test
+            - REDIS_URL=redis://redis:6379/0
+            - RAILS_ENV=test
 volumes:
     postgres13:
     redis_data:
+    bundle_cache:

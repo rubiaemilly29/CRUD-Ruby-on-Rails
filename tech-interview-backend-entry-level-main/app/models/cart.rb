@@ -1,5 +1,19 @@
 class Cart < ApplicationRecord
   validates_numericality_of :total_price, greater_than_or_equal_to: 0
+  has_many :cart_items, dependent: :destroy
+  has_many :products, through: :cart_items
+  scope :abandoned, -> { where("updated_at <= ?", 3.hours.ago) }
 
-  # TODO: lógica para marcar o carrinho como abandonado e remover se abandonado
+  def mark_as_abandoned!
+    update!(abandoned: true)
+  end
+
+  def remove_if_abandoned!
+    destroy! if abandoned && updated_at <= 7.days.ago
+  end
+
+  def update_total_price!
+    update!(total_price: cart_items.includes(:product).sum { |item| item.quantity * item.product.price })
+  end
+
 end
