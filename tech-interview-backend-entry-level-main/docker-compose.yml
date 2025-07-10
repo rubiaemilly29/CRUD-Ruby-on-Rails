@@ -18,10 +18,9 @@ services:
         - redis_data:/data  
     web:
         build: .
-        command: bundle exec rails server -b 0.0.0.0
+        command: bash -c "sleep 10 && bundle exec rails db:create && bundle exec rails db:migrate && (bundle exec rails db:seed || echo 'Seeds already exist or failed, continuing...') && bundle exec rails server -b 0.0.0.0"
         volumes:
         - .:/rails
-        - bundle_cache:/usr/local/bundle
         ports:
         - "3000:3000"
         depends_on:
@@ -32,15 +31,14 @@ services:
         - REDIS_URL=redis://redis:6379/0
     test:
         build: .
-        command: bash -c "bin/rails db:create db:schema:load && bundle exec rspec"
+        command: bash -c "bundle exec rails db:create RAILS_ENV=test && bundle exec rails db:migrate RAILS_ENV=test && bundle exec rspec && tail -f /dev/null"
         volumes:
         - .:/rails
-        - bundle_cache:/usr/local/bundle
         depends_on:
             - db
             - redis 
         environment:
-            - DATABASE_URL=postgresql://postgres:password@db:5432/myapp_test
+            - DATABASE_URL=postgresql://postgres:password@db:5432/store_test
             - REDIS_URL=redis://redis:6379/0
             - RAILS_ENV=test
 volumes:

@@ -28,7 +28,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_08_023825) do
     t.decimal "total_price", precision: 17, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "abandoned"
+    t.boolean "abandoned", default: false
   end
 
   create_table "products", force: :cascade do |t|
