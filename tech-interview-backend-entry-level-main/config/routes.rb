@@ -6,7 +6,7 @@ Rails.application.routes.draw do
 
   resource :cart, only: [:show, :create] do
     post :add_item
-    delete '', action: :remove_item 
+    delete :remove_item 
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
